@@ -1,3 +1,6 @@
+// Always log version for debugging live deploys!
+console.log('🔥🔥🔥 SERVICECIPHER DEPLOYED CODE VERSION: ', Date.now());
+
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
@@ -6,11 +9,22 @@ const fs = require('fs');
 const path = require('path');
 const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
+const allowedEmails = require('./allowed_emails.json');
 require('dotenv').config();
 
 const app = express();
 const port = 3001;
-app.use(cors());
+
+// --- Only ONE CORS middleware, right after express() ---
+app.use(cors({
+  origin: [
+    'https://servicecipher.com',
+    'https://www.servicecipher.com',
+    'https://servicecipher-frontend.vercel.app'
+  ],
+  credentials: true,
+}));
+
 app.use(express.json());
 const upload = multer({ dest: 'uploads/' });
 
@@ -41,6 +55,19 @@ function cleanText(text) {
     .replace(/\*(.*?)\*/g, '$1')
     .replace(/__(.*?)__/g, '$1')
     .replace(/`(.*?)`/g, '$1');
+}
+
+// --- FUTURE PROOF SECTION FETCH ---
+function getSection(sections, key, fallback = "Not provided") {
+  if (
+    sections[key] &&
+    Array.isArray(sections[key]) &&
+    sections[key][0] &&
+    sections[key][0].toLowerCase() !== "none"
+  ) {
+    return cleanText(sections[key][0]);
+  }
+  return fallback;
 }
 
 function extractSections(text) {
@@ -75,7 +102,7 @@ function buildSectionCard(label, content, styleClass = "") {
       html += `<li>${cleanText(line.replace(/^[-•]\s*/, ""))}</li>`;
     });
     html += "</ul>";
-    } else if (label === "Cost Breakdown") {
+  } else if (label === "Cost Breakdown") {
     // Table/grid for cost breakdown
     html += '<div class="cost-table">';
     content.forEach(line => {
@@ -92,7 +119,6 @@ function buildSectionCard(label, content, styleClass = "") {
     html += '</div>';
   } else {
     html += content.map(line => {
-      // ...your normal formatting logic for other cards (from before)
       const match = line.match(/^(.+?):\s*(.*)$/);
       if (match) {
         if (!match[2]) {
@@ -107,7 +133,30 @@ function buildSectionCard(label, content, styleClass = "") {
   return html;
 }
 
-app.post('/api/upload', upload.single('pdf'), async (req, res) => {
+// --- BLUE CARD HELPER ---
+function buildBlueCard(label, content) {
+  // Accepts a string or array for content
+  if (!content || (Array.isArray(content) && (!content[0] || content[0].toLowerCase() === "none")) || content === "Not provided") return '';
+  const safeContent = Array.isArray(content) ? content.map(line => cleanText(line)).join("<br/>") : cleanText(content);
+  return `
+    <div class="section-card blue-card">
+      <div class="section-heading blue">${label}</div>
+      <div class="section-content">${safeContent}</div>
+    </div>
+  `;
+}
+
+// --- EMAIL AUTH MIDDLEWARE ---
+// Expects frontend to send "x-user-email" header
+function checkEmailAllowed(req, res, next) {
+  const email = req.headers['x-user-email'];
+  if (!email || !allowedEmails.includes(email)) {
+    return res.status(403).json({ success: false, message: 'Email not allowed' });
+  }
+  next();
+}
+
+app.post('/api/upload', checkEmailAllowed, upload.single('pdf'), async (req, res) => {
   try {
     const fileBuffer = fs.readFileSync(req.file.path);
     const data = await pdfParse(fileBuffer);
@@ -170,16 +219,23 @@ ${invoiceText}
       max_tokens: 1400,
     });
     const summary = completion.choices[0].message.content;
-    // console.log('RAW OPENAI OUTPUT:\n', summary);
 
     // Section extraction + debug log
     const sections = extractSections(summary);
-    // console.log('PARSED SECTIONS:', sections);
 
-    // Build HTML section cards (skip shop/date, handled separately)
+    // Build blue cards for Reason For Visit and Repair Summary
+    const reasonCard = buildBlueCard('Reason For Visit', sections['REASON_FOR_VISIT']);
+    const summaryCard = buildBlueCard('Repair Summary', sections['REPAIR_SUMMARY']);
+
+    // Build all other section cards
     let cardsHTML = "";
     sectionOrder.forEach(section => {
-      if (section === 'SHOP_NAME' || section === 'DATE') return;
+      if (
+        section === 'SHOP_NAME' ||
+        section === 'DATE' ||
+        section === 'REASON_FOR_VISIT' ||
+        section === 'REPAIR_SUMMARY'
+      ) return;
       let label = prettySectionLabel(section);
       let cssClass = section.toLowerCase();
       cardsHTML += buildSectionCard(label, sections[section], cssClass);
@@ -188,8 +244,10 @@ ${invoiceText}
     // Load HTML template, inject content
     let htmlTemplate = fs.readFileSync(path.join(__dirname, 'templates/invoiceReport.html'), 'utf8');
     htmlTemplate = htmlTemplate
-      .replace('{{SHOP_NAME}}', (sections['SHOP_NAME'] && sections['SHOP_NAME'][0] && sections['SHOP_NAME'][0].toLowerCase() !== 'none') ? cleanText(sections['SHOP_NAME'][0]) : 'Not provided')
-      .replace('{{DATE}}', (sections['DATE'] && sections['DATE'][0] && sections['DATE'][0].toLowerCase() !== 'none') ? cleanText(sections['DATE'][0]) : 'Not provided')
+      .replace('{{SHOP_NAME}}', getSection(sections, 'SHOP_NAME'))
+      .replace('{{DATE}}', getSection(sections, 'DATE'))
+      .replace('{{REASON_FOR_VISIT_CARD}}', reasonCard)
+      .replace('{{REPAIR_SUMMARY_CARD}}', summaryCard)
       .replace('{{SECTION_CARDS}}', cardsHTML);
 
     // Puppeteer: HTML to PDF (footer at the end, no gray space)
@@ -197,32 +255,32 @@ ${invoiceText}
     const pageObj = await browser.newPage();
     await pageObj.setContent(htmlTemplate, { waitUntil: 'networkidle0' });
     const pdfBuffer = await pageObj.pdf({
-  format: 'A4',
-  printBackground: true,
-  margin: { top: '22px', bottom: '80px', left: '0', right: '0' }, // bottom must match footer height
-  displayHeaderFooter: true,
-  headerTemplate: `<span></span>`, // keeps header empty
-  footerTemplate: `
-  <div style="
-    width: 100%;
-    font-size: 14px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    color: #8a97b7;
-    text-align: center;
-    padding: 16px 0 10px 0;
-    border-top: 1.6px solid #e6ebf3;
-    letter-spacing: 0.01em;
-  ">
-    This report was generated by ServiceCipher™. Contact your repair shop with any questions.<br />
-    &copy; 2025 ServiceCipher™.
-  </div>
-`,
-});
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '22px', bottom: '80px', left: '0', right: '0' },
+      displayHeaderFooter: true,
+      headerTemplate: `<span></span>`,
+      footerTemplate: `
+        <div style="
+          width: 100%;
+          font-size: 14px;
+          font-family: 'Segoe UI', Arial, sans-serif;
+          color: #8a97b7;
+          text-align: center;
+          padding: 16px 0 10px 0;
+          border-top: 1.6px solid #e6ebf3;
+          letter-spacing: 0.01em;
+        ">
+          This report was generated by ServiceCipher™. Contact your repair shop with any questions.<br />
+          &copy; 2025 ServiceCipher™.
+        </div>
+      `,
+    });
     await browser.close();
 
-    // Save PDF
+    // Save PDF to /tmp (cross-platform, works on Railway)
     const timestamp = Date.now();
-    const pdfPath = path.join(__dirname, '../downloads', `ServiceCipher_Report_${timestamp}.pdf`);
+    const pdfPath = path.join('/tmp', `ServiceCipher_Report_${timestamp}.pdf`);
     fs.writeFileSync(pdfPath, pdfBuffer);
     fs.unlinkSync(req.file.path);
 
@@ -234,7 +292,7 @@ ${invoiceText}
 });
 
 app.get('/api/download/:filename', (req, res) => {
-  const file = path.join(__dirname, '../downloads', req.params.filename);
+  const file = path.join('/tmp', req.params.filename);  // read from /tmp!
   res.download(file);
 });
 
