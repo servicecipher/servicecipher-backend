@@ -287,6 +287,7 @@ ${invoiceText}
       model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 1400,
+      temperature: 0.3
     });
     const summary = completion.choices[0].message.content;
 
