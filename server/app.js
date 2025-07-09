@@ -190,7 +190,8 @@ function checkEmailAllowed(req, res, next) {
 }
 
 app.post('/api/upload', checkEmailAllowed, upload.single('pdf'), async (req, res) => {
-  try {
+  console.log('ALLOWED EMAILS:', allowedEmails);
+  console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);try {
     const fileBuffer = fs.readFileSync(req.file.path);
     const data = await pdfParse(fileBuffer);
     const invoiceText = data.text;
