@@ -71,25 +71,58 @@ function getSection(sections, key, fallback = "Not provided") {
 }
 
 function extractSections(text) {
+  const sectionOrder = [
+    'DATE',
+    'SHOP_NAME',
+    'REASON_FOR_VISIT',
+    'REPAIR_SUMMARY',
+    'MAJOR',
+    'MODERATE',
+    'MINOR',
+    'COST_BREAKDOWN',
+    'WHAT_DOES_THIS_ACTUALLY_MEAN?',
+    'OTHER_NOTES',
+    'RECOMMENDATIONS'
+  ];
+
   const result = {};
   let current = null;
-  text.split('\n').forEach(line => {
-    const trimmed = line.trim();
-    const match = trimmed.match(/^\**\s*([A-Z _?']+)\s*\**\s*:?/i);
+
+  const lines = text.split('\n').map(line =>
+    line
+      .trim()
+      .replace(/\u2018|\u2019|\u201C|\u201D/g, "'") // smart quotes
+      .replace(/^[-•*]+\s*/, '') // bullets/dashes/markdown
+      .replace(/\*\*(.*?)\*\*/g, '$1') // remove bold
+      .replace(/__(.*?)__/g, '$1') // remove underline
+  );
+
+  for (const line of lines) {
+    const match = line.match(/^([A-Z _?']+)\s*:?$/i);
     if (match) {
-      const sectionKey = match[1].replace(/ /g, '_').toUpperCase();
+      const sectionKey = match[1].trim().toUpperCase().replace(/\s+/g, '_');
       if (sectionOrder.includes(sectionKey)) {
         current = sectionKey;
         result[current] = [];
-        return;
+        continue;
       }
     }
-    if (current && trimmed.length > 0) {
-      result[current].push(cleanText(trimmed.replace(/^[-•]\s*/, "")));
+
+    if (current && line.length > 0) {
+      result[current].push(line);
+    }
+  }
+
+  // Ensure every section is included
+  sectionOrder.forEach(key => {
+    if (!result[key] || result[key].length === 0) {
+      result[key] = ['Not listed on the invoice'];
     }
   });
+
   return result;
 }
+
 
 function buildSectionCard(label, content, styleClass = "") {
   if (!content || content.length === 0 || (content.length === 1 && content[0].toLowerCase() === 'none')) return '';
@@ -164,9 +197,9 @@ app.post('/api/upload', checkEmailAllowed, upload.single('pdf'), async (req, res
 
     // --- PROMPT (unchanged) ---
     const prompt = `
-You are a professional, friendly auto service advisor. Your job is to help customers understand their auto repair invoice in plain, non-technical English—as if explaining to someone who knows nothing about cars. Your writing must always be detailed, helpful, and specific—even if the invoice itself is brief.
+You are a professional, friendly auto service advisor. Your job is to help customers understand their auto repair invoice in plain, non-technical English — as if explaining it to someone who knows nothing about cars. Your writing must always be specific, helpful, and consistent — even if the invoice is short or vague.
 
-Given the invoice below, generate a full, customer-facing report with these exact sections (in this order):
+Given the invoice below, generate a full, customer-facing report using these exact sections, in this exact order:
 
 DATE  
 SHOP_NAME  
@@ -180,47 +213,68 @@ WHAT_DOES_THIS_ACTUALLY_MEAN?
 OTHER_NOTES  
 RECOMMENDATIONS
 
-**Instructions for each section:**
-- **DATE:** State the service date from the invoice, or use today's date if it's missing.
-- **SHOP_NAME:** List the shop name, or leave blank if missing.
-- **REASON_FOR_VISIT:** Always include 2–3 sentences in plain English about why the customer brought the vehicle in.  
-  - If a reason is listed, summarize it clearly.  
-  - If it's not listed, confidently infer the likely reason based on the repairs or services provided.  
-  - **Never leave this section blank or write “None.”**
+---
 
-- **REPAIR_SUMMARY:** Always write 3–5 sentences summarizing every service or repair completed.  
-  - Use simple language to explain what was done.  
-  - If the invoice is brief or vague, use logical context to expand it into a helpful explanation.  
-  - **Never skip this section or write “None.”**
+### INSTRUCTIONS FOR EACH SECTION:
 
-- **MAJOR / MODERATE / MINOR:** For each, include 2–4 bullet points. Each bullet should explain:  
-    - **What was fixed**  
-    - **Why it mattered**  
-    - **What could have happened if it wasn't fixed**  
-    - If the section doesn’t apply, write “No major repairs” (or “None”).
+- **DATE:** State the date of service from the invoice. If not listed, use today’s date.
 
-- **COST_BREAKDOWN:** List every line item (parts, labor, fees, tax, etc.) as bullet points. Use numbers and include the total at the end.
+- **SHOP_NAME:** Extract the shop’s name. Leave blank if it truly does not appear.
 
-- **WHAT_DOES_THIS_ACTUALLY_MEAN?:**  
-  For every major part or service in the invoice (e.g. control arms, ball joints, alignment, brakes, ignition coils, battery, etc.), write a 1–3 sentence explanation of:  
-    - What it does  
+- **REASON_FOR_VISIT:** Always include 2–3 sentences explaining why the customer likely brought the vehicle in.  
+  - If stated, summarize clearly.  
+  - If missing, infer it based on the repairs or services.  
+  - Never leave this blank or write “None.”
+
+- **REPAIR_SUMMARY:** In 3–5 sentences, summarize all repairs or services completed.  
+  - Be clear, direct, and plain-spoken.  
+  - Spell out what was done in customer-friendly language.  
+  - If the invoice is vague, infer details based on standard procedures.  
+  - Never skip this section.
+
+- **MAJOR / MODERATE / MINOR REPAIRS:**  
+  Categorize repairs with strict consistency. This is not stylistic — it is technical.
+
+  - **MAJOR** repairs involve brakes, suspension, steering, internal engine, transmission, electrical faults, overheating, or safety systems (airbags, ABS).  
+    These are repairs that — if ignored — could lead to breakdown, loss of control, or major damage.  
+  - **MODERATE** repairs involve alignment, drivability, emissions, battery, A/C, warning lights, or non-critical but functional issues.  
+  - **MINOR** repairs include fluid services, oil changes, wiper blades, filters, tire rotations, or any cosmetic or preventative work.  
+  - When unsure, default to the **higher severity**.  
+  - For each section, list 2–4 bullet points, with each bullet explaining:  
+    - What was fixed  
+    - Why it mattered  
+    - What could have happened if left undone  
+  - If there are no items in a section, write “None.”
+
+- **COST_BREAKDOWN:**  
+  List every part, labor, fee, tax, and total as a bullet list. Include numbers if possible. Always end with the total cost.
+
+- **WHAT_DOES_THIS ACTUALLY MEAN?:**  
+  For every major part or service listed in the invoice (e.g., control arms, ball joints, alignment, brakes, ignition coils, battery), explain:  
+    - What it is  
     - Why it matters  
     - What can happen if it fails  
-  This section is educational — do not repeat why the car was brought in or what was done. Use a helpful tone, like this:
-  - **Control Arms:** Control arms connect the wheels to the car’s frame and allow for smooth up-and-down movement. They are critical for stable steering and proper alignment. If they wear out or break, you may experience poor handling or even lose control of the vehicle.
+  Do not summarize the invoice here. This section is purely educational. Use this format:
+
   - **Ball Joints:** Ball joints act as pivots between the wheels and the suspension. They help the car turn and move smoothly over bumps. If a ball joint fails, it can cause steering problems or make the wheel detach.
 
-- **OTHER_NOTES:** Add any warranty, reminders, or extra notes. If nothing is listed, write “No additional notes.”
-- **RECOMMENDATIONS:** Offer 2–4 helpful, specific tips for future maintenance. Keep it friendly and non-salesy.
+- **OTHER_NOTES:**  
+  Add any warranties, reminders, or general notes from the invoice. If none are present, write: “No additional notes.”
 
-**General rules:**
-- **Never skip a section.** Every section must be present — even if brief.
-- **Do not summarize or repeat.** Each section must serve a unique purpose.
-- **Be specific, helpful, and clear — like you're talking to a friend.**
-- **Do not use code, markdown, or JSON.**
-- **Use clear section titles and bullet points where needed.**
+- **RECOMMENDATIONS:**  
+  List 2–4 friendly, specific tips for future maintenance. Do not upsell. Be genuinely helpful.
 
----  
+---
+
+### FORMAT RULES (CRITICAL):
+- You must include every section above in the correct order, with each section header written **exactly** as shown.
+- Each header must be followed by a colon and the content on the next line(s).
+- Never skip or rename sections. If content is missing, provide a helpful fallback (e.g., “Not listed on the invoice”).
+- Never write in paragraph form. Use clear headers, bullet lists, and short sections.
+- Do not include markdown, HTML, code, or JSON.
+
+---
+
 INVOICE TO ANALYZE:  
 --------------------  
 ${invoiceText}  
