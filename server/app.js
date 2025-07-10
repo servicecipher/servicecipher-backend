@@ -263,7 +263,10 @@ RECOMMENDATIONS
   Add any warranties, reminders, or general notes from the invoice. If none are present, write: “No additional notes.”
 
 - **RECOMMENDATIONS:**  
-  List 2–4 friendly, specific tips for future maintenance. Do not upsell. Be genuinely helpful.
+  If the invoice lists any recommendations (future services, maintenance reminders, or inspection suggestions), display those clearly in this section.  
+  - Use the actual recommendations from the invoice as the main content.  
+  - If there are no recommendations listed, provide 2–4 helpful, specific, non-salesy maintenance tips based on the repairs or inspection findings.  
+  - Always write this section; never leave it blank or write "None."
 
 ---
 
