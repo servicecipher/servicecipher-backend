@@ -158,8 +158,7 @@ function buildSectionCard(label, content, styleClass = "") {
         if (!match[2]) {
           return `<div class="card-line"><span class="card-title">${cleanText(match[1])}:</span></div>`;
         }
-        return `<div class="card-line"><span class="card-title">${cleanText(match[1])}:</span><br>${cleanText(match[2])}</div>`;
-      }
+return `<div class="card-line"><span class="card-title">${cleanText(match[1])}:</span> ${cleanText(match[2])}</div>`;      }
       return `<div class="card-line">${cleanText(line)}</div>`;
     }).join('');
   }
