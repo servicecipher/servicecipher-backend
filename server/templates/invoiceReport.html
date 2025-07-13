@@ -14,9 +14,9 @@
       }
 
       .container {
-        max-width: 820px;
+        max-width: 900px;
         margin: 0 auto;
-        padding: 14px 42px;
+        padding: 24px 32px;
         background: #fff;
         border-radius: 18px;
         box-shadow: 0 2px 32px rgba(32, 40, 90, 0.08);
@@ -46,18 +46,40 @@
         margin-bottom: 28px;
         display: flex;
         gap: 40px;
+        justify-content: space-between;
       }
 
-      /* === Section Cards (shared styles) === */
+      .report-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .row {
+        display: grid;
+        gap: 24px;
+      }
+
+      .two-column {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .three-column {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
       .section-card {
+        min-height: 100%;
         background: #f8fafd;
         border-radius: 16px;
-        padding: 20px 22px;
-        margin-bottom: 24px;
+        padding: 24px 28px;
         border-left: 14px solid #3963cc;
         box-shadow: 0 1.5px 8px rgba(39, 75, 170, 0.05);
         break-inside: avoid;
         page-break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
 
       .section-heading {
@@ -68,20 +90,20 @@
       }
 
       .section-content {
-        font-size: 0.98rem;
+        font-size: 1.05rem;
         line-height: 1.6;
         color: #26375b;
       }
 
       ul {
         margin-left: 24px;
+        padding-left: 0;
       }
 
       li {
         margin-bottom: 10px;
       }
 
-      /* === Colored Section Cards === */
       .section-card.major {
         background: #fff3f5;
         border-left-color: #e53947;
@@ -107,29 +129,6 @@
         color: #1eb672;
       }
 
-      /* === Grid Layouts === */
-      .report-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .row {
-        display: grid;
-        gap: 24px;
-      }
-
-      .row.two-column {
-        grid-template-columns: 1fr 1fr;
-        align-items: start;
-      }
-
-      .row.three-column {
-        grid-template-columns: 1fr 1fr 1fr;
-        align-items: start;
-      }
-
-      /* === Blue cards === */
       .section-card.blue-card {
         background: #f2f7ff;
         border-left-color: #3963cc;
@@ -139,31 +138,37 @@
         color: #3963cc;
       }
 
-      .card-line {
-        margin-bottom: 10px;
-        line-height: 1.5;
+      /* Restore original table format for cost breakdown */
+      .cost-table {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 14px;
       }
 
-      @media (max-width: 820px) {
-        .container {
-          padding: 10px 24px;
-        }
-        .section-card {
-          padding: 18px 20px;
-        }
-        .section-heading {
-          font-size: 1.15rem;
-        }
-        .section-content {
-          font-size: 0.98rem;
-        }
-        .header-title {
-          font-size: 2rem;
-        }
-        .at-a-glance {
-          font-size: 1rem;
-          gap: 24px;
-        }
+      .cost-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2px 0;
+        border-bottom: 1px solid #e6ebf3;
+      }
+
+      .cost-item {
+        font-weight: 500;
+        color: #243966;
+        font-size: 1.07em;
+        max-width: 65%;
+        word-break: break-word;
+      }
+
+      .cost-price {
+        font-weight: 700;
+        color: #3963cc;
+        font-size: 1.07em;
+        min-width: 75px;
+        text-align: right;
+        letter-spacing: 0.03em;
       }
     </style>
   </head>
@@ -176,22 +181,18 @@
         <div><strong>Shop:</strong> {{SHOP_NAME}}</div>
         <div><strong>Date:</strong> {{DATE}}</div>
       </div>
-
       <div class="report-wrapper">
         <div class="row two-column">
           {{REASON_FOR_VISIT_CARD}} {{REPAIR_SUMMARY_CARD}}
         </div>
-
         <div class="row three-column">
           {{SECTION_CARD_MAJOR}} {{SECTION_CARD_MODERATE}}
           {{SECTION_CARD_MINOR}}
         </div>
-
         <div class="row two-column">
           {{SECTION_CARD_COST_BREAKDOWN}}
           {{SECTION_CARD_WHAT_DOES_THIS_ACTUALLY_MEAN?}}
         </div>
-
         <div class="row two-column">
           {{SECTION_CARD_OTHER_NOTES}} {{SECTION_CARD_RECOMMENDATIONS}}
         </div>
