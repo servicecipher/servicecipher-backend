@@ -326,7 +326,17 @@ ${invoiceText}
   .replace('{{SECTION_CARD_MAJOR}}', buildSectionCard('Major Repairs', sections['MAJOR'], 'major'))
   .replace('{{SECTION_CARD_MODERATE}}', buildSectionCard('Moderate Repairs', sections['MODERATE'], 'moderate'))
   .replace('{{SECTION_CARD_MINOR}}', buildSectionCard('Minor Repairs', sections['MINOR'], 'minor'))
-  .replace('{{SECTION_CARD_COST_BREAKDOWN}}', buildSectionCard('Cost Breakdown', sections['COST_BREAKDOWN'], 'cost_breakdown'))
+  .replace('{{COST_BREAKDOWN_ROWS}}', sections['COST_BREAKDOWN'].map(line => {
+    const idx = line.lastIndexOf(':');
+    if (idx !== -1) {
+      const item = cleanText(line.slice(0, idx+1));
+      const price = cleanText(line.slice(idx+1)).trim();
+      return `<tr><td class="cost-item">${item}</td><td class="cost-price">${price}</td></tr>`;
+    } else {
+      return `<tr><td class="cost-item" colspan="2">${cleanText(line)}</td></tr>`;
+    }
+  }).join(''))
+  // .replace('{{SECTION_CARD_COST_BREAKDOWN}}', buildSectionCard('Cost Breakdown', sections['COST_BREAKDOWN'], 'cost_breakdown'))
   .replace('{{SECTION_CARD_WHAT_DOES_THIS_ACTUALLY_MEAN?}}', buildSectionCard('What Does This Actually Mean?', sections['WHAT_DOES_THIS_ACTUALLY_MEAN?'], 'education'))
   .replace('{{SECTION_CARD_OTHER_NOTES}}', buildSectionCard('Other Notes', sections['OTHER_NOTES'], 'other_notes'))
   .replace('{{SECTION_CARD_RECOMMENDATIONS}}', buildSectionCard('Recommendations', sections['RECOMMENDATIONS'], 'recommendations'));
