@@ -320,11 +320,17 @@ ${invoiceText}
     // Load HTML template, inject content
     let htmlTemplate = fs.readFileSync(path.join(__dirname, 'templates/invoiceReport.html'), 'utf8');
     htmlTemplate = htmlTemplate
-      .replace('{{SHOP_NAME}}', getSection(sections, 'SHOP_NAME'))
-      .replace('{{DATE}}', getSection(sections, 'DATE'))
-      .replace('{{REASON_FOR_VISIT_CARD}}', reasonCard)
-      .replace('{{REPAIR_SUMMARY_CARD}}', summaryCard)
-      .replace('{{SECTION_CARDS}}', cardsHTML);
+  .replace('{{SHOP_NAME}}', getSection(sections, 'SHOP_NAME'))
+  .replace('{{DATE}}', getSection(sections, 'DATE'))
+  .replace('{{REASON_FOR_VISIT_CARD}}', reasonCard)
+  .replace('{{REPAIR_SUMMARY_CARD}}', summaryCard)
+  .replace('{{SECTION_CARD_MAJOR}}', buildSectionCard('Major Repairs', sections['MAJOR'], 'major'))
+  .replace('{{SECTION_CARD_MODERATE}}', buildSectionCard('Moderate Repairs', sections['MODERATE'], 'moderate'))
+  .replace('{{SECTION_CARD_MINOR}}', buildSectionCard('Minor Repairs', sections['MINOR'], 'minor'))
+  .replace('{{SECTION_CARD_COST_BREAKDOWN}}', buildSectionCard('Cost Breakdown', sections['COST_BREAKDOWN'], 'cost_breakdown'))
+  .replace('{{SECTION_CARD_WHAT_DOES_THIS_ACTUALLY_MEAN?}}', buildSectionCard('What Does This Actually Mean?', sections['WHAT_DOES_THIS_ACTUALLY_MEAN?'], 'education'))
+  .replace('{{SECTION_CARD_OTHER_NOTES}}', buildSectionCard('Other Notes', sections['OTHER_NOTES'], 'other_notes'))
+  .replace('{{SECTION_CARD_RECOMMENDATIONS}}', buildSectionCard('Recommendations', sections['RECOMMENDATIONS'], 'recommendations'));
 
     // Puppeteer: HTML to PDF (footer at the end, no gray space)
     const browser = await puppeteer.launch({ args: ['--no-sandbox'], headless: true });
