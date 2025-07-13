@@ -125,12 +125,13 @@
       }
 
       .cost-table tr {
-        border-bottom: 1px dashed #ccc;
+        /* optional: no additional styles needed here if td already has border-bottom */
       }
 
       .cost-table td {
         padding: 6px 8px;
         vertical-align: top;
+        border-bottom: 1px dashed #ccc;
       }
 
       .cost-item {
@@ -144,6 +145,7 @@
         text-align: right;
         width: 25%;
         white-space: nowrap;
+        font-weight: 500;
       }
 
       .footer {
