@@ -132,6 +132,8 @@
         padding: 6px 8px;
         vertical-align: top;
         border-bottom: 1px dashed #ccc;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
 
       .cost-item {
@@ -180,7 +182,12 @@
         {{SECTION_CARD_MAJOR}} {{SECTION_CARD_MODERATE}} {{SECTION_CARD_MINOR}}
       </div>
 
-      {{SECTION_CARD_COST_BREAKDOWN}}
+      <div class="section-card cost_breakdown">
+        <div class="section-heading">Cost Breakdown</div>
+        <table class="cost-table">
+          {{COST_BREAKDOWN_ROWS}}
+        </table>
+      </div>
       {{SECTION_CARD_WHAT_DOES_THIS_ACTUALLY_MEAN?}}
       {{SECTION_CARD_OTHER_NOTES}} {{SECTION_CARD_RECOMMENDATIONS}}
 
