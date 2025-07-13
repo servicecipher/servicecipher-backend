@@ -14,9 +14,9 @@
       }
 
       .container {
-        max-width: 900px;
+        max-width: 1020px;
         margin: 0 auto;
-        padding: 24px 32px;
+        padding: 24px 40px;
         background: #fff;
         border-radius: 18px;
         box-shadow: 0 2px 32px rgba(32, 40, 90, 0.08);
@@ -29,7 +29,7 @@
       }
 
       .header-title {
-        font-size: 2.3rem;
+        font-size: 2rem;
         font-weight: 700;
         color: #243966;
         margin-bottom: 8px;
@@ -39,81 +39,63 @@
         background: #f2f7ff;
         border: 1.2px solid #dde9fa;
         border-radius: 8px;
-        padding: 12px 24px;
-        font-size: 1.12rem;
+        padding: 10px 24px;
+        font-size: 1rem;
         color: #3c4577;
         font-weight: 500;
         margin-bottom: 28px;
         display: flex;
-        gap: 40px;
         justify-content: space-between;
       }
 
       .report-wrapper {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 32px;
       }
 
       .row {
-        display: grid;
+        display: flex;
         gap: 24px;
+        width: 100%;
       }
 
-      .two-column {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .three-column {
-        grid-template-columns: repeat(3, 1fr);
+      .row > .section-card {
+        flex: 1;
       }
 
       .section-card {
-        min-height: 100%;
         background: #f8fafd;
         border-radius: 16px;
-        padding: 24px 28px;
+        padding: 20px 24px;
         border-left: 14px solid #3963cc;
         box-shadow: 0 1.5px 8px rgba(39, 75, 170, 0.05);
-        break-inside: avoid;
-        page-break-inside: avoid;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
+        min-height: 200px;
       }
 
       .section-heading {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
         font-weight: 700;
-        color: #3963cc;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
 
       .section-content {
-        font-size: 1.05rem;
-        line-height: 1.6;
+        font-size: 0.93rem;
+        line-height: 1.55;
         color: #26375b;
-      }
-
-      ul {
-        margin-left: 24px;
-        padding-left: 0;
-      }
-
-      li {
-        margin-bottom: 10px;
       }
 
       .section-card.major {
         background: #fff3f5;
         border-left-color: #e53947;
       }
-
       .section-card.moderate {
         background: #fffbe8;
         border-left-color: #ffd062;
       }
-
       .section-card.minor {
         background: #f3fcf7;
         border-left-color: #47c484;
@@ -133,19 +115,15 @@
         background: #f2f7ff;
         border-left-color: #3963cc;
       }
-
       .section-heading.blue {
         color: #3963cc;
       }
 
-      /* Restore original table format for cost breakdown */
       .cost-table {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        margin-top: 14px;
       }
-
       .cost-row {
         display: flex;
         justify-content: space-between;
@@ -153,22 +131,41 @@
         padding: 2px 0;
         border-bottom: 1px solid #e6ebf3;
       }
-
       .cost-item {
         font-weight: 500;
         color: #243966;
-        font-size: 1.07em;
-        max-width: 65%;
+        font-size: 0.93rem;
+        max-width: 70%;
         word-break: break-word;
       }
-
       .cost-price {
         font-weight: 700;
         color: #3963cc;
-        font-size: 1.07em;
+        font-size: 0.93rem;
         min-width: 75px;
         text-align: right;
-        letter-spacing: 0.03em;
+      }
+
+      ul {
+        margin: 0 0 0 24px;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+
+      .section-content strong {
+        display: block;
+        margin-top: 8px;
+        font-weight: 600;
+        color: #243966;
+      }
+
+      footer {
+        margin-top: 36px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #888;
       }
     </style>
   </head>
@@ -181,22 +178,30 @@
         <div><strong>Shop:</strong> {{SHOP_NAME}}</div>
         <div><strong>Date:</strong> {{DATE}}</div>
       </div>
+
       <div class="report-wrapper">
-        <div class="row two-column">
-          {{REASON_FOR_VISIT_CARD}} {{REPAIR_SUMMARY_CARD}}
-        </div>
-        <div class="row three-column">
+        <div class="row">{{REASON_FOR_VISIT_CARD}} {{REPAIR_SUMMARY_CARD}}</div>
+
+        <div class="row">
           {{SECTION_CARD_MAJOR}} {{SECTION_CARD_MODERATE}}
           {{SECTION_CARD_MINOR}}
         </div>
-        <div class="row two-column">
+
+        <div class="row">
           {{SECTION_CARD_COST_BREAKDOWN}}
           {{SECTION_CARD_WHAT_DOES_THIS_ACTUALLY_MEAN?}}
         </div>
-        <div class="row two-column">
+
+        <div class="row">
           {{SECTION_CARD_OTHER_NOTES}} {{SECTION_CARD_RECOMMENDATIONS}}
         </div>
       </div>
+
+      <footer>
+        This report was generated by ServiceCipher™. Contact your repair shop
+        with any questions.<br />
+        © 2025 ServiceCipher™.
+      </footer>
     </div>
   </body>
 </html>
