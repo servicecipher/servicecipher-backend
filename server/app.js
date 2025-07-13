@@ -20,7 +20,8 @@ app.use(cors({
   origin: [
     'https://servicecipher.com',
     'https://www.servicecipher.com',
-    'https://servicecipher-frontend.vercel.app'
+    'https://servicecipher-frontend.vercel.app',
+    'https://app.servicecipher.com'
   ],
   credentials: true,
 }));
