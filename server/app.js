@@ -251,11 +251,11 @@ RECOMMENDATIONS
   List every part, labor, fee, tax, and total as a bullet list. Include numbers if possible. Always end with the total cost.
 
 - **WHAT_DOES_THIS ACTUALLY MEAN?:**  
-  For every major part or service listed in the invoice (e.g., control arms, ball joints, alignment, brakes, ignition coils, battery), explain:  
+  For every major and moderate part or service listed in the invoice (e.g., control arms, ball joints, alignment, brakes, ignition coils, battery), explain:  
     - What it is  
     - Why it matters  
     - What can happen if it fails  
-  Do not summarize the invoice here. This section is purely educational. Use this format:
+  Do not summarize the invoice here. This section is purely educational. Assume the reader has very little to no knowledge of cars. Use this format:
 
   - **Ball Joints:** Ball joints act as pivots between the wheels and the suspension. They help the car turn and move smoothly over bumps. If a ball joint fails, it can cause steering problems or make the wheel detach.
 
