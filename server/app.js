@@ -298,6 +298,16 @@ ${invoiceText}
     // Section extraction + debug log
     const sections = extractSections(summary);
 
+    const isDetailing = sections['REPAIR_SUMMARY'].some(line =>
+      line.toLowerCase().includes('detail') ||
+      line.toLowerCase().includes('cleaning') ||
+      line.toLowerCase().includes('polish')
+    );
+
+    const majorLabel = isDetailing ? 'Major Detailing Services' : 'Major Repairs';
+    const moderateLabel = isDetailing ? 'Moderate Detailing Services' : 'Moderate Repairs';
+    const minorLabel = isDetailing ? 'Minor Detailing Services' : 'Minor Repairs';
+
     // Build blue cards for Reason For Visit and Repair Summary
     const reasonCard = buildBlueCard('Reason For Visit', sections['REASON_FOR_VISIT']);
     const summaryCard = buildBlueCard('Repair Summary', sections['REPAIR_SUMMARY']);
@@ -323,9 +333,9 @@ ${invoiceText}
   .replace('{{DATE}}', getSection(sections, 'DATE'))
   .replace('{{REASON_FOR_VISIT_CARD}}', reasonCard)
   .replace('{{REPAIR_SUMMARY_CARD}}', summaryCard)
-  .replace('{{SECTION_CARD_MAJOR}}', buildSectionCard('Major Repairs', sections['MAJOR'], 'major'))
-  .replace('{{SECTION_CARD_MODERATE}}', buildSectionCard('Moderate Repairs', sections['MODERATE'], 'moderate'))
-  .replace('{{SECTION_CARD_MINOR}}', buildSectionCard('Minor Repairs', sections['MINOR'], 'minor'))
+  .replace('{{SECTION_CARD_MAJOR}}', buildSectionCard(majorLabel, sections['MAJOR'], 'major'))
+  .replace('{{SECTION_CARD_MODERATE}}', buildSectionCard(moderateLabel, sections['MODERATE'], 'moderate'))
+  .replace('{{SECTION_CARD_MINOR}}', buildSectionCard(minorLabel, sections['MINOR'], 'minor'))
   .replace('{{COST_BREAKDOWN_ROWS}}', sections['COST_BREAKDOWN'].map(line => {
     const idx = line.lastIndexOf(':');
     if (idx !== -1) {
