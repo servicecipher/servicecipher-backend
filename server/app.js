@@ -243,10 +243,11 @@ RECOMMENDATIONS
   - **MODERATE** repairs involve alignment, drivability, emissions, battery, A/C, warning lights, or non-critical but functional issues.  
   - **MINOR** repairs include fluid services, oil changes, wiper blades, filters, tire rotations, or any cosmetic or preventative work.  
   - When unsure, default to the **higher severity**.  
-  - For each section, list 2–4 bullet points, with each bullet explaining:  
-    - What was fixed  
-    - Why it mattered  
-    - What could have happened if left undone  
+  - For each section, list 2–4 bullet points in this format:  
+  - [Part or Service]: [Plain English explanation of why it mattered and what could happen if left undone]  
+  - Example: Brake Pads: These create friction to stop your car. Worn-out pads increase stopping distance and can lead to brake failure.  
+- Every bullet point must start with the part or service name followed by a colon.  
+- Never write paragraphs inside this section — only clean bullet points as shown.
   - If there are no items in a section, write “None.”
 
 - **COST_BREAKDOWN:**  
@@ -278,6 +279,7 @@ RECOMMENDATIONS
 - Never skip or rename sections. If content is missing, provide a helpful fallback (e.g., “Not listed on the invoice”).
 - Never write in paragraph form. Use clear headers, bullet lists, and short sections.
 - Do not include markdown, HTML, code, or JSON.
+- **For MAJOR, MODERATE, and MINOR sections, YOU MUST ONLY WRITE CLEAN BULLET POINTS with bolded part names followed by a colon. NEVER write paragraphs or long sentences in these sections.**
 
 ---
 
