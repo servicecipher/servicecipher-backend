@@ -195,9 +195,11 @@ app.post('/api/upload', checkEmailAllowed, upload.single('pdf'), async (req, res
     const fileBuffer = fs.readFileSync(req.file.path);
     const data = await pdfParse(fileBuffer);
     const invoiceText = data.text;
+    const userLanguage = req.headers['x-user-language'] || 'english';
 
     // --- PROMPT (unchanged) ---
     const prompt = `
+Please write the following customer report in ${userLanguage}.
 You are a professional, friendly auto service advisor. Your job is to help customers understand their auto repair invoice in plain, non-technical English — as if explaining it to someone who knows nothing about cars. Your writing must always be specific, helpful, and consistent — even if the invoice is short or vague.
 
 Given the invoice below, generate a full, customer-facing report using these exact sections, in this exact order:
