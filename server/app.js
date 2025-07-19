@@ -199,7 +199,7 @@ app.post('/api/upload', checkEmailAllowed, upload.single('pdf'), async (req, res
 
     // --- PROMPT (unchanged) ---
     const prompt = `
-Please write the following customer report in ${userLanguage}.  
+Please write the following customer report in ${userLanguage}.
 You are a professional, friendly auto service advisor. Your job is to help customers understand their auto repair invoice in plain, non-technical English — as if explaining it to someone who knows nothing about cars. Your writing must always be specific, helpful, and consistent — even if the invoice is short or vague.
 
 Given the invoice below, generate a full, customer-facing report using these exact sections, in this exact order:
@@ -273,7 +273,7 @@ RECOMMENDATIONS
 ---
 
 ### FORMAT RULES (CRITICAL):
-- You must include every section above in the correct order, and translate each section header into ${userLanguage} before writing the section content.
+- You must include every section above in the correct order, with each section header written **exactly** as shown.
 - Each header must be followed by a colon and the content on the next line(s).
 - Never skip or rename sections. If content is missing, provide a helpful fallback (e.g., “Not listed on the invoice”).
 - Never write in paragraph form. Use clear headers, bullet lists, and short sections.
