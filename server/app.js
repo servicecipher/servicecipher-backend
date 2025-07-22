@@ -179,17 +179,7 @@ function buildBlueCard(label, content) {
   `;
 }
 
-// --- EMAIL AUTH MIDDLEWARE ---
-// Expects frontend to send "x-user-email" header
-function checkEmailAllowed(req, res, next) {
-  const email = req.headers['x-user-email'];
-  if (!email || !allowedEmails.includes(email)) {
-    return res.status(403).json({ success: false, message: 'Email not allowed' });
-  }
-  next();
-}
-
-app.post('/api/upload', checkEmailAllowed, upload.single('pdf'), async (req, res) => {
+app.post('/api/upload', upload.single('pdf'), async (req, res) => {
   console.log('ALLOWED EMAILS:', allowedEmails);
   console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);try {
     const fileBuffer = fs.readFileSync(req.file.path);
