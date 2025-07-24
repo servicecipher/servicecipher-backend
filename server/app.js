@@ -9,7 +9,6 @@ const fs = require('fs');
 const path = require('path');
 const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
-const allowedEmails = require('./allowed_emails.json');
 require('dotenv').config();
 
 const app = express();
@@ -180,7 +179,7 @@ function buildBlueCard(label, content) {
 }
 
 app.post('/api/upload', upload.single('pdf'), async (req, res) => {
-  console.log('ALLOWED EMAILS:', allowedEmails);
+  // console.log('ALLOWED EMAILS:', allowedEmails);
   console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);try {
     const fileBuffer = fs.readFileSync(req.file.path);
     const data = await pdfParse(fileBuffer);
