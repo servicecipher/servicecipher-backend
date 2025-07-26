@@ -509,7 +509,7 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
     const { getAuth } = require('@clerk/clerk-sdk-node');
 
     const authHeader = req.headers['x-user-email'];
-    const userEmail = authHeader;
+    // const userEmail = authHeader; // Removed to avoid redeclaration
 
     const clerk = require('@clerk/clerk-sdk-node');
 
