@@ -410,10 +410,14 @@ If the invoice includes follow-up instructions, medication reminders, or lifesty
 - Final output MUST be in ${userLanguage}.
 ---
 
+
 INVOICE TO ANALYZE:  
 --------------------  
 ${invoiceText}  
 --------------------
+ 
+At the end of your response, write:  
+INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice contents.
 `;
 
     // OpenAI call
