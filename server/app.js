@@ -506,27 +506,30 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
     const summary = completion.choices[0].message.content;
 
     // Determine invoiceType from summary (via INVOICE_TYPE: label if present)
-    let invoiceType = 'auto';
-    const typeMatch = summary.match(/^INVOICE_TYPE:\s*(.+)$/m);
-    if (typeMatch) {
-      invoiceType = typeMatch[1].trim().toLowerCase();
+    const { getAuth } = require('@clerk/clerk-sdk-node');
+
+    const authHeader = req.headers['x-user-email'];
+    const userEmail = authHeader;
+
+    const clerk = require('@clerk/clerk-sdk-node');
+
+    const currentUser = await clerk.users.getUserList({ emailAddress: [userEmail] }).then(res => res[0]);
+
+    let userIndustries = [];
+
+    if (Array.isArray(currentUser.publicMetadata?.industries)) {
+      userIndustries = currentUser.publicMetadata.industries.map(i => i.toLowerCase());
+    } else if (typeof currentUser.publicMetadata?.industries === "string") {
+      userIndustries = [currentUser.publicMetadata.industries.toLowerCase()];
     }
 
-    // Restrict processing to allowed industry (support array or string)
-    let userIndustries = allowedIndustry;
-    try {
-      userIndustries = JSON.parse(allowedIndustry);
-    } catch (e) {
-      // fallback to string
-    }
+    const sections = extractSections(summary.replace(/^INVOICE_TYPE:.*$/m, '').trim());
+    const invoiceType = sections['INVOICE_TYPE']?.[0]?.toLowerCase();
 
-    if (
-      !Array.isArray(userIndustries) ||
-      !userIndustries.map(i => i.toLowerCase()).includes(invoiceType)
-    ) {
+    if (!userIndustries.includes(invoiceType)) {
       return res.status(403).json({
         success: false,
-        message: `This account is restricted to processing '${allowedIndustry}' invoices.`
+        message: `You do not have access to generate this type of report.`
       });
     }
 
