@@ -524,6 +524,8 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
     const sections = extractSections(cleanedSummary);
     const invoiceType = sections['INVOICE_TYPE']?.[0]?.toLowerCase();
 
+    console.log("👤 User Industries:", userIndustries);
+    console.log("📄 Invoice Type Detected:", invoiceType);
     if (!userIndustries.includes(invoiceType)) {
       return res.status(403).json({
         success: false,
