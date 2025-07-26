@@ -297,9 +297,37 @@ ${invoiceText}
       line.toLowerCase().includes('polish')
     );
 
-    const majorLabel = isDetailing ? 'Major Detailing Services' : 'Major Repairs';
-    const moderateLabel = isDetailing ? 'Moderate Detailing Services' : 'Moderate Repairs';
-    const minorLabel = isDetailing ? 'Minor Detailing Services' : 'Minor Repairs';
+    const isMedical = sections['REPAIR_SUMMARY'].some(line =>
+      line.toLowerCase().includes('clinic') ||
+      line.toLowerCase().includes('patient') ||
+      line.toLowerCase().includes('diagnosis') ||
+      line.toLowerCase().includes('medical')
+    );
+
+    const isPlumbing = sections['REPAIR_SUMMARY'].some(line =>
+      line.toLowerCase().includes('leak') ||
+      line.toLowerCase().includes('pipe') ||
+      line.toLowerCase().includes('drain') ||
+      line.toLowerCase().includes('plumbing')
+    );
+
+    let majorLabel = 'Major Repairs';
+    let moderateLabel = 'Moderate Repairs';
+    let minorLabel = 'Minor Repairs';
+
+    if (isDetailing) {
+      majorLabel = 'Major Detailing Services';
+      moderateLabel = 'Moderate Detailing Services';
+      minorLabel = 'Minor Detailing Services';
+    } else if (isMedical) {
+      majorLabel = 'Major Procedures';
+      moderateLabel = 'Moderate Procedures';
+      minorLabel = 'Minor Procedures';
+    } else if (isPlumbing) {
+      majorLabel = 'Major Plumbing Repairs';
+      moderateLabel = 'Moderate Plumbing Repairs';
+      minorLabel = 'Minor Plumbing Repairs';
+    }
 
     // Build blue cards for Reason For Visit and Repair Summary
     const reasonCard = buildBlueCard('Reason For Visit', sections['REASON_FOR_VISIT']);
