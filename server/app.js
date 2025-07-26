@@ -508,12 +508,8 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
     // Determine invoiceType from summary (via INVOICE_TYPE: label if present)
     const { getAuth } = require('@clerk/clerk-sdk-node');
 
-    const authHeader = req.headers['x-user-email'];
-    // const userEmail = authHeader; // Removed to avoid redeclaration
-
-    const clerk = require('@clerk/clerk-sdk-node');
-
-    const currentUser = await clerk.users.getUserList({ emailAddress: [userEmail] }).then(res => res[0]);
+    // Use the existing correct user lookup logic
+    // (already defined above, so do not redeclare userEmail/currentUser)
 
     let userIndustries = [];
 
@@ -523,7 +519,9 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
       userIndustries = [currentUser.publicMetadata.industries.toLowerCase()];
     }
 
-    const sections = extractSections(summary.replace(/^INVOICE_TYPE:.*$/m, '').trim());
+    const cleanedSummary = summary.replace(/^INVOICE_TYPE:.*$/m, '').trim();
+    // Section extraction + debug log
+    const sections = extractSections(cleanedSummary);
     const invoiceType = sections['INVOICE_TYPE']?.[0]?.toLowerCase();
 
     if (!userIndustries.includes(invoiceType)) {
@@ -532,10 +530,6 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
         message: `You do not have access to generate this type of report.`
       });
     }
-
-    const cleanedSummary = summary.replace(/^INVOICE_TYPE:.*$/m, '').trim();
-    // Section extraction + debug log
-    const sections = extractSections(cleanedSummary);
 
     let majorLabel = 'Major Repairs';
     let moderateLabel = 'Moderate Repairs';
