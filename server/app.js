@@ -9,7 +9,10 @@ const fs = require('fs');
 const path = require('path');
 const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
+
 require('dotenv').config();
+const { Clerk } = require('@clerk/clerk-sdk-node');
+const clerk = Clerk({ apiKey: process.env.CLERK_SECRET_KEY });
 
 const app = express();
 const port = 3001;
@@ -180,7 +183,19 @@ function buildBlueCard(label, content) {
 
 app.post('/api/upload', upload.single('pdf'), async (req, res) => {
   // console.log('ALLOWED EMAILS:', allowedEmails);
-  console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);try {
+  console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);
+  try {
+    // Clerk user check
+    const userEmail = req.headers['x-user-email'];
+    const allUsers = await clerk.users.getUserList();
+    const currentUser = allUsers.find(u => u.emailAddresses?.some(e => e.emailAddress === userEmail));
+
+    if (!currentUser) {
+      return res.status(403).json({ success: false, message: 'User not found.' });
+    }
+
+    const allowedIndustry = currentUser.publicMetadata?.industry || "auto";
+
     const fileBuffer = fs.readFileSync(req.file.path);
     const data = await pdfParse(fileBuffer);
     const invoiceText = data.text;
@@ -458,7 +473,7 @@ If the invoice lists recommendations (e.g., future services, inspections, produc
 	•	If none are listed, provide 2–4 helpful and specific maintenance tips (e.g., “Consider insulating exposed pipes to prevent winter damage.”)
 	•	Always write this section; never leave it blank or write “None.”
 
-
+-----
 
 ### FORMAT RULES (CRITICAL):
 - You must include every section above in the correct order, with each section header written **exactly** as shown.
@@ -496,6 +511,15 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
     if (typeMatch) {
       invoiceType = typeMatch[1].trim().toLowerCase();
     }
+
+    // Restrict processing to allowed industry
+    if (invoiceType !== allowedIndustry.toLowerCase()) {
+      return res.status(403).json({
+        success: false,
+        message: `This account is restricted to processing '${allowedIndustry}' invoices.`
+      });
+    }
+
     const cleanedSummary = summary.replace(/^INVOICE_TYPE:.*$/m, '').trim();
     // Section extraction + debug log
     const sections = extractSections(cleanedSummary);
