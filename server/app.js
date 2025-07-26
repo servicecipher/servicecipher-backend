@@ -429,26 +429,6 @@ ${invoiceText}
     // Section extraction + debug log
     const sections = extractSections(summary);
 
-    const isDetailing = sections['REPAIR_SUMMARY'].some(line =>
-      line.toLowerCase().includes('detail') ||
-      line.toLowerCase().includes('cleaning') ||
-      line.toLowerCase().includes('polish')
-    );
-
-    const isMedical = sections['REPAIR_SUMMARY'].some(line =>
-      line.toLowerCase().includes('clinic') ||
-      line.toLowerCase().includes('patient') ||
-      line.toLowerCase().includes('diagnosis') ||
-      line.toLowerCase().includes('medical')
-    );
-
-    const isPlumbing = sections['REPAIR_SUMMARY'].some(line =>
-      line.toLowerCase().includes('leak') ||
-      line.toLowerCase().includes('pipe') ||
-      line.toLowerCase().includes('drain') ||
-      line.toLowerCase().includes('plumbing')
-    );
-
     let majorLabel = 'Major Repairs';
     let moderateLabel = 'Moderate Repairs';
     let minorLabel = 'Minor Repairs';
