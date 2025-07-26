@@ -512,8 +512,18 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
       invoiceType = typeMatch[1].trim().toLowerCase();
     }
 
-    // Restrict processing to allowed industry
-    if (invoiceType !== allowedIndustry.toLowerCase()) {
+    // Restrict processing to allowed industry (support array or string)
+    let userIndustries = allowedIndustry;
+    try {
+      userIndustries = JSON.parse(allowedIndustry);
+    } catch (e) {
+      // fallback to string
+    }
+
+    if (
+      !Array.isArray(userIndustries) ||
+      !userIndustries.map(i => i.toLowerCase()).includes(invoiceType)
+    ) {
       return res.status(403).json({
         success: false,
         message: `This account is restricted to processing '${allowedIndustry}' invoices.`
