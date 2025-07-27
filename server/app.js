@@ -269,7 +269,7 @@ RECOMMENDATIONS
   List every part, labor, fee, tax, and total as a bullet list. Include numbers if possible. Always end with the total cost.
 
 - **WHAT_DOES_THIS ACTUALLY MEAN?:**  
-  For every major and moderate part or service listed in the invoice (e.g., control arms, ball joints, alignment, brakes, ignition coils, battery), explain:  
+  For every major, moderate & minor part or service listed in the invoice (e.g., control arms, ball joints, alignment, brakes, ignition coils, battery), explain:  
     - What it is  
     - Why it matters  
     - What can happen if it fails  
@@ -335,7 +335,7 @@ These services significantly improve vehicle condition, resale value, or long-te
 	•	COST_BREAKDOWN:
 List every service, labor, fee, tax, and total as a bullet list. Include numbers if possible. Always end with the total cost.
 	•	WHAT_DOES_THIS ACTUALLY MEAN?:
-For every major and moderate service listed in the invoice (e.g., ceramic coating, paint correction, interior shampooing, clay bar treatment), explain:
+For every major, moderate & minor service listed in the invoice (e.g., ceramic coating, paint correction, interior shampooing, clay bar treatment), explain:
 	•	What it is
 	•	Why it matters
 	•	What can happen if it’s never done
@@ -398,8 +398,8 @@ These are critical for diagnosis or stabilization and often require follow-up ca
 	•	COST_BREAKDOWN:
 List every procedure, consultation, lab test, medication, tax, and total as a bullet list. Include amounts if possible. Always end with the total cost.
 	•	WHAT_DOES_THIS ACTUALLY MEAN?:
-For every major and moderate procedure listed in the invoice (e.g., CT scan, biopsy, injections, lab tests), explain:
-	•	What it is
+For every major, moderate & minor procedure listed in the invoice (e.g., CT scan, biopsy, injections, lab tests), explain:
+	•	What it is (in very simple terms as if the reader does not know about medicine)
 	•	Why it’s important
 	•	What might happen if it was not done
 Do not summarize the invoice here. This section is purely educational. Assume the reader has no medical background. Use this format:
@@ -459,7 +459,7 @@ Water Heater Replacement: The old unit was no longer functioning. A new one was 
 	•	COST_BREAKDOWN:
 List all services, parts, labor, fees, and total as a bullet list. Include numbers if available. Always end with the total cost.
 	•	WHAT_DOES_THIS ACTUALLY MEAN?:
-For every major and moderate service in the invoice, explain:
+For every major, moderate & minor service in the invoice, explain:
 	•	What it is
 	•	Why it matters
 	•	What could happen if not fixed
