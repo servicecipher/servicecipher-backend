@@ -504,6 +504,7 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
       temperature: 0.3
     });
     const summary = completion.choices[0].message.content;
+    console.log("🧾 GPT Summary Output:\n", summary);
 
     // Determine invoiceType from summary (via INVOICE_TYPE: label if present)
     const { getAuth } = require('@clerk/clerk-sdk-node');
@@ -519,10 +520,10 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
       userIndustries = [currentUser.publicMetadata.industries.toLowerCase()];
     }
 
+    const invoiceTypeMatch = summary.match(/INVOICE_TYPE:\s*(\w+)/i);
+    const invoiceType = invoiceTypeMatch ? invoiceTypeMatch[1].toLowerCase() : undefined;
     const cleanedSummary = summary.replace(/^INVOICE_TYPE:.*$/m, '').trim();
-    // Section extraction + debug log
     const sections = extractSections(cleanedSummary);
-    const invoiceType = sections['INVOICE_TYPE']?.[0]?.toLowerCase();
 
     console.log("👤 User Industries:", userIndustries);
     console.log("📄 Invoice Type Detected:", invoiceType);
