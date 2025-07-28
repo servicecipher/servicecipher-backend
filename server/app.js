@@ -525,8 +525,9 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
       userIndustries = [currentUser.publicMetadata.industries.toLowerCase()];
     }
 
-    const invoiceTypeMatch = summary.match(/INVOICE_TYPE:\s*(\w+)/i);
-    const invoiceType = invoiceTypeMatch ? invoiceTypeMatch[1].toLowerCase() : undefined;
+    // Extract invoiceType for both invoices and estimates
+    const match = summary.match(/INVOICE_TYPE:\s*(auto|detailing|medical|plumbing)/i);
+    const invoiceType = match ? match[1].toLowerCase() : undefined;
     const cleanedSummary = summary.replace(/^INVOICE_TYPE:.*$/m, '').trim();
     const sections = extractSections(cleanedSummary);
     console.log("📄 Document Type:", documentType);
@@ -534,10 +535,7 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
     console.log("👤 User Industries:", userIndustries);
     console.log("📄 Invoice Type Detected:", invoiceType);
     if (!userIndustries.includes(invoiceType)) {
-      return res.status(403).json({
-        success: false,
-        message: `You do not have access to generate this type of report.`
-      });
+      return res.status(403).json({ error: 'You do not have access to generate this type of report.' });
     }
 
     let majorLabel = 'Major Repairs';
