@@ -200,9 +200,11 @@ app.post('/api/upload', upload.single('pdf'), async (req, res) => {
     const data = await pdfParse(fileBuffer);
     const invoiceText = data.text;
     const userLanguage = req.headers['x-user-language'] || 'english';
+    const documentType = req.headers['x-document-type'] || 'invoice';
 
     // --- PROMPT (unchanged) ---
     const prompt = `
+The document provided is a ${documentType}.
 Please write the following customer report in ${userLanguage}. The final output **MUST** be in the ${userLanguage}.
 You have multiple roles. Your roles are as follows:
 
@@ -524,6 +526,7 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice conte
     const invoiceType = invoiceTypeMatch ? invoiceTypeMatch[1].toLowerCase() : undefined;
     const cleanedSummary = summary.replace(/^INVOICE_TYPE:.*$/m, '').trim();
     const sections = extractSections(cleanedSummary);
+    console.log("📄 Document Type:", documentType);
 
     console.log("👤 User Industries:", userIndustries);
     console.log("📄 Invoice Type Detected:", invoiceType);
