@@ -184,6 +184,7 @@ function buildBlueCard(label, content) {
 app.post('/api/upload', upload.single('pdf'), async (req, res) => {
   // console.log('ALLOWED EMAILS:', allowedEmails);
   console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);
+  console.log("📄 DOC TYPE HEADER:", req.headers['x-doc-type']);
   try {
     // Clerk user check
     const userEmail = req.headers['x-user-email'];
