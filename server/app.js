@@ -242,7 +242,7 @@ RECOMMENDATIONS
 
 - **DATE:** State the date of service from the invoice or estimate. If not listed, use today’s date.
 
-- **SHOP_NAME:** Extract the shop’s name. Leave blank if it truly does not appear.
+- **SHOP_NAME:** Use the shop’s name. Leave blank if it truly does not appear.
 
 - **REASON_FOR_VISIT:** Always include 2–3 sentences explaining why the customer likely brought the vehicle in.  
   - If stated, summarize clearly.  
