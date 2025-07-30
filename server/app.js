@@ -61,7 +61,7 @@ function cleanText(text) {
 }
 
 // --- FUTURE PROOF SECTION FETCH ---
-function getSection(sections, key, fallback = "Not provided") {
+function getSection(sections, key, fallback = "Not listed on the invoice") {
   if (
     sections[key] &&
     Array.isArray(sections[key]) &&
@@ -101,12 +101,16 @@ function extractSections(text) {
   );
 
   for (const line of lines) {
-    const match = line.match(/^([A-Z _?']+)\s*:?$/i);
+    const match = line.match(/^([A-Z _?']+):\s*(.*)$/i);
     if (match) {
       const sectionKey = match[1].trim().toUpperCase().replace(/\s+/g, '_');
+      const restOfLine = match[2].trim();
       if (sectionOrder.includes(sectionKey)) {
         current = sectionKey;
         result[current] = [];
+        if (restOfLine.length > 0) {
+          result[current].push(restOfLine);
+        }
         continue;
       }
     }
@@ -170,9 +174,25 @@ return `<div class="card-line"><span class="card-title">${cleanText(match[1])}:<
 
 // --- BLUE CARD HELPER ---
 function buildBlueCard(label, content) {
-  // Accepts a string or array for content
-  if (!content || (Array.isArray(content) && (!content[0] || content[0].toLowerCase() === "none")) || content === "Not provided") return '';
-  const safeContent = Array.isArray(content) ? content.map(line => cleanText(line)).join("<br/>") : cleanText(content);
+  const isEmpty = (
+    !content ||
+    (Array.isArray(content) && (!content[0] || ['none', 'not listed on the invoice'].includes(content[0].toLowerCase()))) ||
+    content === "Not provided"
+  );
+
+  if (isEmpty) {
+    return `
+      <div class="section-card blue-card">
+        <div class="section-heading blue">${label}</div>
+        <div class="section-content">Not listed on the invoice</div>
+      </div>
+    `;
+  }
+
+  const safeContent = Array.isArray(content)
+    ? content.map(line => cleanText(line)).join("<br/>")
+    : cleanText(content);
+
   return `
     <div class="section-card blue-card">
       <div class="section-heading blue">${label}</div>
