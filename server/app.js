@@ -701,11 +701,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { url } = await clerkClient.billingPortal.createBillingPortalUrl({
       userId,
-      returnUrl: 'https://app.servicecipher.com',
-      subscription: {
-        mode: 'payment',
-        plan: planId
-      }
+      returnUrl: 'https://app.servicecipher.com'
     });
 
     return res.json({ success: true, url });
