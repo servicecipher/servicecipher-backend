@@ -11,6 +11,7 @@ const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
 const allowedEmails = require('./allowed_emails.json');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const port = 3001;
@@ -294,6 +295,42 @@ ${invoiceText}
 app.get('/api/download/:filename', (req, res) => {
   const file = path.join('/tmp', req.params.filename);  // read from /tmp!
   res.download(file);
+});
+
+
+// --- Stripe Checkout session creation route ---
+app.post('/api/create-checkout-session', async (req, res) => {
+  const { plan } = req.body;
+
+  const priceIdMap = {
+    free: 'price_12345_FREE',
+    basic: 'price_12345_BASIC',
+    professional: 'price_12345_PROFESSIONAL',
+  };
+
+  const priceId = priceIdMap[plan];
+  if (!priceId) {
+    return res.status(400).json({ error: 'Invalid plan selected' });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: 'https://app.servicecipher.com?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://servicecipher.com/cancelled',
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Stripe Checkout Error:', error);
+    res.status(500).json({ error: 'Unable to create checkout session' });
+  }
 });
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
