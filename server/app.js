@@ -686,18 +686,19 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
 
 
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { planId } = req.body;
+  const { planId, userId } = req.body;
 
-  if (!planId) {
-    return res.status(400).json({ error: 'Missing planId' });
+  if (!planId || !userId) {
+    return res.status(400).json({ error: 'Missing planId or userId' });
   }
 
   try {
     const session = await clerkClient.billing.createCheckoutSession({
+      userId,  // ✅ you must pass this
       returnUrl: 'https://app.servicecipher.com',
       cancelUrl: 'https://app.servicecipher.com/pricing',
       mode: 'payment',
-      plan: planId
+      plan: planId,
     });
 
     res.json({ url: session.url });
