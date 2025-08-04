@@ -699,14 +699,19 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 
   try {
-    const { url } = await clerkClient.billingPortal.createBillingPortalUrl({
+    const { url } = await clerkClient.billingSessions.createCheckoutSession({
       userId,
-      returnUrl: 'https://app.servicecipher.com'
+      successUrl: 'https://app.servicecipher.com?checkout=success',
+      cancelUrl: 'https://app.servicecipher.com?checkout=cancel',
+      subscription: {
+        mode: 'subscription',
+        plan: planId
+      }
     });
 
     return res.json({ success: true, url });
   } catch (err) {
-    console.error('Clerk Billing Session Error:', err);
+    console.error('Clerk Checkout Session Error:', err);
     return res.status(500).json({ success: false, message: 'Checkout failed.' });
   }
 });
