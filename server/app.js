@@ -11,7 +11,7 @@ const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
 
 require('dotenv').config();
-const { clerkClient } = require('@clerk/backend');
+const { clerkClient } = require('@clerk/clerk-sdk-node');
 
 const app = express();
 const port = 3001;
@@ -208,7 +208,7 @@ app.post('/api/upload', upload.single('pdf'), async (req, res) => {
     // Clerk user check
     const userEmail = req.headers['x-user-email'];
     const docType = req.headers['x-document-type'] || 'invoice'; // fallback to 'invoice'
-    const allUsers = await clerk.users.getUserList();
+    const allUsers = await clerkClient.users.getUserList();
     const currentUser = allUsers.find(u => u.emailAddresses?.some(e => e.emailAddress === userEmail));
 
     if (!currentUser) {
@@ -693,10 +693,13 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 
   try {
-    console.log("Creating checkout session for plan:", planId);
+    console.log("Creating checkout session for plan:", planId, "and user:", userId);
+
+    // Ensure user exists
+    const user = await clerkClient.users.getUser(userId);
 
     const session = await clerkClient.billing.createCheckoutSession({
-      userId,  // ✅ you must pass this
+      userId,
       returnUrl: 'https://app.servicecipher.com',
       cancelUrl: 'https://app.servicecipher.com/pricing',
       mode: 'payment',
