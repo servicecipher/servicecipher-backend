@@ -693,6 +693,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 
   try {
+    console.log("Creating checkout session for plan:", planId);
+
     const session = await clerkClient.billing.createCheckoutSession({
       userId,  // ✅ you must pass this
       returnUrl: 'https://app.servicecipher.com',
@@ -701,10 +703,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
       plan: planId,
     });
 
+    console.log("Checkout session created:", session);
     res.json({ url: session.url });
+
   } catch (error) {
-    console.error('Checkout session error:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    console.error("Checkout session error details:", error?.errors || error);
+    res.status(500).json({ error: 'Failed to create checkout session', details: error?.errors || error.message });
   }
 });
 
