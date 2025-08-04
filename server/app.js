@@ -685,6 +685,37 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
   }
 });
 
+
+app.post('/api/create-checkout-session', async (req, res) => {
+  const { userId, plan } = req.body;
+
+  const planIds = {
+    basic: 'cplan_30nRo3xlAsquhQwMzV8ujV58OJM',
+    professional: 'cplan_30nRybpoieFlQpBCc9uuNewiIq7'
+  };
+
+  const planId = planIds[plan];
+  if (!planId) {
+    return res.status(400).json({ success: false, message: 'Invalid plan selected.' });
+  }
+
+  try {
+    const { url } = await clerk.billing.sessions.create({
+      userId,
+      returnUrl: 'https://app.servicecipher.com',
+      mode: 'payment',
+      subscription: {
+        plan: planId
+      }
+    });
+
+    return res.json({ success: true, url });
+  } catch (err) {
+    console.error('Clerk Billing Session Error:', err);
+    return res.status(500).json({ success: false, message: 'Checkout failed.' });
+  }
+});
+
 app.get('/api/download/:filename', (req, res) => {
   const file = path.join('/tmp', req.params.filename);  // read from /tmp!
   res.download(file);
