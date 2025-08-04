@@ -686,33 +686,24 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
 
 
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { userId, plan } = req.body;
+  const { planId } = req.body;
 
-  const planIds = {
-    basic: 'cplan_30nRo3xlAsquhQwMzV8ujV58OJM',
-    professional: 'cplan_30nRybpoieFlQpBCc9uuNewiIq7'
-  };
-
-  const planId = planIds[plan];
   if (!planId) {
-    return res.status(400).json({ success: false, message: 'Invalid plan selected.' });
+    return res.status(400).json({ error: 'Missing planId' });
   }
 
   try {
-    const { url } = await clerkClient.billingSessions.createCheckoutSession({
-      userId,
-      successUrl: 'https://app.servicecipher.com?checkout=success',
-      cancelUrl: 'https://app.servicecipher.com?checkout=cancel',
-      subscription: {
-        mode: 'subscription',
-        plan: planId
-      }
+    const session = await clerkClient.billing.createCheckoutSession({
+      returnUrl: 'https://app.servicecipher.com',
+      cancelUrl: 'https://app.servicecipher.com/pricing',
+      mode: 'payment',
+      plan: planId
     });
 
-    return res.json({ success: true, url });
-  } catch (err) {
-    console.error('Clerk Checkout Session Error:', err);
-    return res.status(500).json({ success: false, message: 'Checkout failed.' });
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Checkout session error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
   }
 });
 
