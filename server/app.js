@@ -11,8 +11,7 @@ const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
 
 require('dotenv').config();
-const { Clerk } = require('@clerk/clerk-sdk-node');
-const clerk = Clerk({ apiKey: process.env.CLERK_SECRET_KEY });
+const { clerkClient } = require('@clerk/backend');
 
 const app = express();
 const port = 3001;
@@ -700,11 +699,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 
   try {
-    const { url } = await clerk.billing.sessions.create({
+    const { url } = await clerkClient.billingPortal.createBillingPortalUrl({
       userId,
       returnUrl: 'https://app.servicecipher.com',
-      mode: 'payment',
       subscription: {
+        mode: 'payment',
         plan: planId
       }
     });

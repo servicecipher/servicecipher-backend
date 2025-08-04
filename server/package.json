@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "@clerk/backend": "^2.6.2",
     "@clerk/clerk-sdk-node": "^4.13.23",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
