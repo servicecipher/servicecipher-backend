@@ -528,14 +528,22 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
     // Determine invoiceType from summary (via INVOICE_TYPE: label if present)
     const { getAuth } = require('@clerk/clerk-sdk-node');
 
-    // Use the email header to identify user; currentUser is no longer used.
+    // Use the email header to identify user, and reliably match Clerk user by email
     const email = req.headers['x-user-email'];
-    // Use query param for reliable Clerk user lookup
-    const clerkUsers = await clerkClient.users.getUserList({ query: email });
+    const allUsers = await clerkClient.users.getUserList();
+    const currentUser = allUsers.find(u =>
+      u.emailAddresses?.some(e => e.emailAddress === email)
+    );
+
     let userIndustries = [];
-    if (clerkUsers.length > 0) {
-      const user = clerkUsers[0];
-      userIndustries = user.publicMetadata?.industries || [];
+
+    if (currentUser?.publicMetadata?.industries) {
+      const industries = currentUser.publicMetadata.industries;
+      if (Array.isArray(industries)) {
+        userIndustries = industries.map(i => i.toLowerCase());
+      } else if (typeof industries === "string") {
+        userIndustries = [industries.toLowerCase()];
+      }
     }
 
     // Extract invoiceType for both invoices and estimates
