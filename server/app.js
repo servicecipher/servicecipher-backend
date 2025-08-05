@@ -530,8 +530,12 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
 
     // Use the email header to identify user; currentUser is no longer used.
     const email = req.headers['x-user-email'];
+    const clerkUsers = await clerkClient.users.getUserList({ emailAddress: [email] });
     let userIndustries = [];
-    // TODO: Fetch user metadata via Clerk if needed, using email.
+    if (clerkUsers.length > 0) {
+      const user = clerkUsers[0];
+      userIndustries = user.publicMetadata?.industries || [];
+    }
 
     // Extract invoiceType for both invoices and estimates
     const match = summary.match(/INVOICE_TYPE:\s*(auto|detailing|medical|plumbing)/i);
