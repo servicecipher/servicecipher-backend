@@ -530,7 +530,8 @@ INVOICE_TYPE: [auto | detailing | medical | plumbing] based on the invoice or es
 
     // Use the email header to identify user; currentUser is no longer used.
     const email = req.headers['x-user-email'];
-    const clerkUsers = await clerkClient.users.getUserList({ emailAddress: [email] });
+    // Use query param for reliable Clerk user lookup
+    const clerkUsers = await clerkClient.users.getUserList({ query: email });
     let userIndustries = [];
     if (clerkUsers.length > 0) {
       const user = clerkUsers[0];
