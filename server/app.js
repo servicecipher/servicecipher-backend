@@ -205,17 +205,9 @@ app.post('/api/upload', upload.single('pdf'), async (req, res) => {
   console.log('RECEIVED HEADER x-user-email:', req.headers['x-user-email']);
   console.log("📄 DOC TYPE HEADER:", req.headers['x-doc-type']);
   try {
-    // Clerk user check
+    // Clerk user check removed
     const userEmail = req.headers['x-user-email'];
     const docType = req.headers['x-document-type'] || 'invoice'; // fallback to 'invoice'
-    const allUsers = await clerkClient.users.getUserList();
-    const currentUser = allUsers.find(u => u.emailAddresses?.some(e => e.emailAddress === userEmail));
-
-    if (!currentUser) {
-      return res.status(403).json({ success: false, message: 'User not found.' });
-    }
-
-    const allowedIndustry = currentUser.publicMetadata?.industry || "auto";
 
     const fileBuffer = fs.readFileSync(req.file.path);
     const data = await pdfParse(fileBuffer);
